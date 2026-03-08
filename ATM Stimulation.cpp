@@ -1,0 +1,249 @@
+#include <iostream>
+#include <string>
+#include <iomanip>
+#include <limits>
+
+using namespace std;
+
+class ATM {
+private:
+    double balance;
+    const int PIN = 1234;
+    bool authenticated;
+
+public:
+
+    ATM() {
+        balance = 1000.0; 
+        authenticated = false;
+    }
+
+    bool authenticate(int enteredPin) {
+        if (enteredPin == PIN) {
+            authenticated = true;
+            return true;
+        }
+        return false;
+    }
+
+    double checkBalance() {
+        if (authenticated) {
+            return balance;
+        }
+        return -1;
+    }
+
+    bool deposit(double amount) {
+        if (!authenticated) {
+            return false;
+        }
+        
+        if (amount <= 0) {
+            return false; 
+        }
+        
+        balance += amount;
+        return true;
+    }
+
+    bool withdraw(double amount) {
+        if (!authenticated) {
+            return false;
+        }
+        
+        if (amount <= 0) {
+            return false; 
+        }
+        
+        if (amount > balance) {
+            return false;
+        }
+        
+        balance -= amount;
+        return true;
+    }
+
+    void logout() {
+        authenticated = false;
+    }
+
+    bool isAuthenticated() {
+        return authenticated;
+    }
+};
+
+class ATMController {
+private:
+    ATM atm;
+
+    void clearScreen() {
+        cout << "\033[2J\033[1;1H";
+    }
+
+    void waitForEnter() {
+        cout <<endl <<"Press Enter to continue...";
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin.get();
+    }
+
+    void displayHeader() {
+        cout << "          ATM SIMULATION SYSTEM      \n";
+    }
+
+    void displayBalance() {
+        double balance = atm.checkBalance();
+        if (balance >= 0) {
+            cout << fixed << setprecision(2);
+            cout << "Your current balance: $" << balance << endl;
+        } else {
+            cout << "Error: Please login first!" << endl;
+        }
+    }
+
+public:
+    void run() {
+        int choice;
+        bool running = true;
+
+        while (running) {
+            clearScreen();
+            displayHeader();
+
+            if (!atm.isAuthenticated()) {
+                cout << "\n1. Login to ATM\n";
+                cout << "2. Exit\n";
+                cout << "Enter your choice: ";
+                cin >> choice;
+
+                switch (choice) {
+                    case 1:
+                        loginScreen();
+                        break;
+                    case 2:
+                        running = false;
+                        cout << "\nThank you for using our ATM. Goodbye!\n";
+                        break;
+                    default:
+                        cout << "\nInvalid choice! Please try again.\n";
+                        waitForEnter();
+                }
+            } else {
+                cout << "\n============ MAIN MENU ===========\n";
+                cout << "1. Check Balance\n";
+                cout << "2. Deposit Money\n";
+                cout << "3. Withdraw Money\n";
+                cout << "4. Logout\n";
+                cout << "Enter your choice: ";
+                cin >> choice;
+
+                switch (choice) {
+                    case 1:
+                        checkBalanceScreen();
+                        break;
+                    case 2:
+                        depositScreen();
+                        break;
+                    case 3:
+                        withdrawScreen();
+                        break;
+                    case 4:
+                        atm.logout();
+                        cout << "\nLogged out successfully!\n";
+                        waitForEnter();
+                        break;
+                    default:
+                        cout << "\nInvalid choice! Please try again.\n";
+                        waitForEnter();
+                }
+            }
+        }
+    }
+
+    void loginScreen() {
+        int enteredPin;
+        
+        clearScreen();
+        displayHeader();
+        cout << "\n============= LOGIN =============\n";
+        cout << "Enter PIN (Default: 1234): ";
+        cin >> enteredPin;
+
+        if (atm.authenticate(enteredPin)) {
+            cout << "\nLogin successful! Welcome to ATM services.\n";
+        } else {
+            cout << "\nInvalid PIN! Please try again.\n";
+        }
+        waitForEnter();
+    }
+
+    void checkBalanceScreen() {
+        clearScreen();
+        displayHeader();
+        cout << "\n========== CHECK BALANCE =========\n";
+        displayBalance();
+        waitForEnter();
+    }
+
+    void depositScreen() {
+        double amount;
+        
+        clearScreen();
+        displayHeader();
+        cout << "\n=========== DEPOSIT MONEY =========\n";
+        cout << "Current balance: $" << fixed << setprecision(2) 
+             << atm.checkBalance() << endl;
+        cout << "\nEnter amount to deposit: $";
+        cin >> amount;
+
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "\nInvalid input! Please enter a valid number.\n";
+        } else if (atm.deposit(amount)) {
+            cout << "\nDeposit successful!\n";
+            cout << "New balance: $" << fixed << setprecision(2) 
+                 << atm.checkBalance() << endl;
+        } else {
+            cout << "\nDeposit failed! Invalid amount.\n";
+        }
+        waitForEnter();
+    }
+
+    void withdrawScreen() {
+        double amount;
+        
+        clearScreen();
+        displayHeader();
+        cout << "\n========== WITHDRAW MONEY =========\n";
+        cout << "Current balance: $" << fixed << setprecision(2) 
+             << atm.checkBalance() << endl;
+        cout << "\nEnter amount to withdraw: $";
+        cin >> amount;
+
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "\nInvalid input! Please enter a valid number.\n";
+        } else if (atm.withdraw(amount)) {
+            cout << "\nWithdrawal successful!\n";
+            cout << "Please take your cash.\n";
+            cout << "New balance: $" << fixed << setprecision(2) 
+                 << atm.checkBalance() << endl;
+        } else {
+            cout << "\nWithdrawal failed!\n";
+            if (amount > atm.checkBalance()) {
+                cout << "Insufficient funds!\n";
+            } else {
+                cout << "Invalid amount!\n";
+            }
+        }
+        waitForEnter();
+    }
+};
+
+int main() {
+    ATMController controller;
+    controller.run();
+    
+    return 0;
+}
