@@ -1,5 +1,7 @@
 # ATM Simulation (C++)
 
+![Project banner for ATM Simulation](docs/images/atm-stimulation-banner.png)
+
 A beginner C++ console project that simulates an ATM: PIN-protected login,
 balance inquiry, cash deposits, and withdrawals, built with OOP principles.
 
