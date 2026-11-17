@@ -1,5 +1,7 @@
 # ATM Simulation (C++)
 
+[![CI](https://github.com/subhanbhatti50134-jpg/ATM-Stimulation/actions/workflows/ci.yml/badge.svg)](https://github.com/subhanbhatti50134-jpg/ATM-Stimulation/actions/workflows/ci.yml)
+
 ![Project banner for ATM Simulation](docs/images/atm-stimulation-banner.png)
 
 A beginner C++ console project that simulates an ATM: PIN-protected login,
